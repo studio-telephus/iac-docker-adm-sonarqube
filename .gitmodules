@@ -1,0 +1,3 @@
+[submodule "filesystem-shared-ca-certificates"]
+	path = filesystem-shared-ca-certificates
+	url = https://github.com/studio-telephus/filesystem-shared-ca-certificates.git

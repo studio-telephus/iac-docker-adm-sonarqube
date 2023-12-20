@@ -1,0 +1,21 @@
+name: ssh-terraform
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Deploy through SSH
+        uses: studio-telephus/actions/ssh-terraform@main
+        with:
+          SshHost: ${{ secrets.TEL_SSH_HOST }}
+          SshPort: ${{ secrets.TEL_SSH_PORT }}
+          SshUser: ${{ secrets.TEL_SSH_USER }}
+          SshPrivateKey: ${{ secrets.GHA_SSH_PRIVATE_KEY }}
+          RemotePath: "~/components/containers/adm/sonarqube"
+          DryRun: true
+          Destroy: false
