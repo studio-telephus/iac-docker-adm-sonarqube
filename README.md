@@ -1,4 +1,6 @@
-# Sonarqube
+# iac-lxd-adm-sonarqube
+
+Sonarqube installation through Terraform.
 
 ## LXC server
 
