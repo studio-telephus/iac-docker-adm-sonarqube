@@ -1,6 +1,6 @@
-module "container_sonarqube" {
-  source    = "github.com/studio-telephus/tel-iac-modules-lxd.git//instance?ref=develop"
-  name      = "container-sonarqube"
+module "container_adm_sonarqube" {
+  source    = "github.com/studio-telephus/terraform-lxd-instance.git?ref=1.0.1"
+  name      = "container-adm-sonarqube"
   image     = "images:debian/bookworm"
   profiles  = ["limits", "fs-dir", "nw-adm"]
   autostart = true
@@ -16,12 +16,10 @@ module "container_sonarqube" {
     "${path.cwd}/filesystem-shared-ca-certificates",
     "${path.cwd}/filesystem",
   ]
-  exec = {
-    enabled    = true
-    entrypoint = "/mnt/install.sh"
-    environment = {
-      RANDOM_STRING       = "1d9f2318-1f2d-4864-90b3-463a37801fff"
-      SONAR_JDBC_PASSWORD = var.sonar_jdbc_password
-    }
+  exec_enabled = true
+  exec         = "/mnt/install.sh"
+  environment = {
+    RANDOM_STRING       = "1d9f2318-1f2d-4864-90b3-463a37801fff"
+    SONAR_JDBC_PASSWORD = var.sonar_jdbc_password
   }
 }

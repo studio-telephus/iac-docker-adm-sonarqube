@@ -17,5 +17,5 @@ jobs:
           SshUser: ${{ secrets.TEL_SSH_USER }}
           SshPrivateKey: ${{ secrets.GHA_SSH_PRIVATE_KEY }}
           RemotePath: "~/components/containers/adm/sonarqube"
-          DryRun: true
+          DryRun: false
           Destroy: false
