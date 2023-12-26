@@ -20,6 +20,8 @@ module "container_adm_sonarqube" {
   exec         = "/mnt/install.sh"
   environment = {
     RANDOM_STRING       = "1d9f2318-1f2d-4864-90b3-463a37801fff"
-    SONAR_JDBC_PASSWORD = var.sonar_jdbc_password
+    POSTGRES_PASSWORD = var.sonar_postgres_password
+    SONAR_OWNER_PASSWORD = var.sonar_owner_password
+    SONAR_USER_PASSWORD = var.sonar_user_password
   }
 }
