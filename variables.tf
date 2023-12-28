@@ -13,7 +13,7 @@ variable "sonar_postgres_password" {
   sensitive = true
 }
 
-variable "platformrsa_keystore_storepass" {
+variable "platformrsa_key_passphrase" {
   type      = string
   sensitive = true
 }

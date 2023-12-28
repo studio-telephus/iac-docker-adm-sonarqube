@@ -23,6 +23,6 @@ module "container_adm_sonarqube" {
     POSTGRES_PASSWORD = var.sonar_postgres_password
     SONAR_OWNER_PASSWORD = var.sonar_owner_password
     SONAR_USER_PASSWORD = var.sonar_user_password
-    SERVER_KEYSTORE_STOREPASS = var.platformrsa_keystore_storepass
+    SERVER_KEY_PASSPHRASE = var.platformrsa_key_passphrase
   }
 }

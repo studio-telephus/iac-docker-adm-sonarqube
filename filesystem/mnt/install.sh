@@ -2,7 +2,7 @@
 : "${POSTGRES_PASSWORD?}"
 : "${SONAR_OWNER_PASSWORD?}"
 : "${SONAR_USER_PASSWORD?}"
-: "${SERVER_KEYSTORE_STOREPASS?}"
+: "${SERVER_KEY_PASSPHRASE?}"
 
 ##
 echo "Install the base tools"
@@ -157,7 +157,7 @@ echo "The private key is encrypted using PBE with 256 bit AES CBC."
 openssl rsa \
   -in /etc/ssl/private/server-encrypted.key \
   -out /etc/ssl/private/server.key \
-  -passin "pass:$SERVER_KEYSTORE_STOREPASS"
+  -passin "pass:$SERVER_KEY_PASSPHRASE"
 
 cat << EOF > /etc/nginx/conf.d/ssl.conf
 server {
