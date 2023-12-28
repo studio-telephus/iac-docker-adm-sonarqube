@@ -27,7 +27,7 @@ Then
 
 Test
 
-    nc -zv sonarqube.dev.acme.corp 9000
+    nc -zv sonarqube.adm.acme.corp 9000
 
 ### Local Nginx proxy
 
@@ -38,8 +38,8 @@ Test
 Add to Apache2 configuration
 
     <Location /sonarqube>
-        ProxyPass http://sonarqube.dev.acme.corp:9000/sonarqube
-        ProxyPassReverse http://sonarqube.dev.acme.corp:9000/sonarqube
+        ProxyPass http://sonarqube.adm.acme.corp:9000/sonarqube
+        ProxyPassReverse http://sonarqube.adm.acme.corp:9000/sonarqube
     </Location>
 
 Then
@@ -48,4 +48,4 @@ Then
 
 Test
 
-    https://sonarqube.dev.acme.corp/sonarqube
+    https://sonarqube.adm.acme.corp/sonarqube

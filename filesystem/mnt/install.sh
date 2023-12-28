@@ -2,6 +2,7 @@
 : "${POSTGRES_PASSWORD?}"
 : "${SONAR_OWNER_PASSWORD?}"
 : "${SONAR_USER_PASSWORD?}"
+: "${SERVER_KEYSTORE_STOREPASS?}"
 
 ##
 echo "Install the base tools"
@@ -62,7 +63,7 @@ CREATE TABLESPACE sonardb_tablespace OWNER sonardb_owner LOCATION '/mnt/postgres
 CREATE DATABASE sonardb OWNER sonardb_owner ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TABLESPACE sonardb_tablespace;
 CREATE USER sonardb_user WITH ENCRYPTED PASSWORD '$SONAR_USER_PASSWORD';
 GRANT CONNECT ON DATABASE sonardb TO sonardb_user;
-GRANT ALL PRIVILEGES ON ALL TABLES IN SCHEMA public TO sonardb_user;
+GRANT ALL ON SCHEMA public TO sonardb_user;
 EOF
 
 psql --host=localhost \
@@ -130,7 +131,7 @@ systemctl enable sonarqube
 echo "Start the sonarqube service"
 systemctl start sonarqube
 
-echo "Trust Telephus self-signed certificates"
+echo "Java to trust Telephus self-signed certificates"
 keytool -import -trustcacerts \
         -keystore /usr/lib/jvm/java-17-amazon-corretto/lib/security/cacerts \
         -storepass changeit -noprompt \
@@ -142,3 +143,68 @@ keytool -import -trustcacerts \
         -storepass changeit -noprompt \
         -alias telephuscarsa \
         -file /usr/share/ca-certificates/self-signed/telephuscarsa.crt
+
+##
+echo "Install nginx"
+
+apt install nginx -y
+systemctl enable nginx
+
+chmod -R 700 /etc/ssl/private
+openssl dhparam -out /etc/nginx/dhparam.pem 4096
+
+echo "The private key is encrypted using PBE with 256 bit AES CBC."
+openssl rsa \
+  -in /etc/ssl/private/server-encrypted.key \
+  -out /etc/ssl/private/server.key \
+  -passin "pass:$SERVER_KEYSTORE_STOREPASS"
+
+cat << EOF > /etc/nginx/conf.d/ssl.conf
+server {
+    listen 443 http2 ssl;
+    listen [::]:443 http2 ssl;
+
+    server_name localhost;
+
+    ssl_certificate /etc/ssl/certs/server-chain.crt;
+    ssl_certificate_key /etc/ssl/private/server.key;
+
+    ssl_protocols TLSv1.2;
+    ssl_prefer_server_ciphers on;
+    ssl_dhparam /etc/nginx/dhparam.pem;
+    ssl_ciphers ECDHE-RSA-AES256-GCM-SHA512:DHE-RSA-AES256-GCM-SHA512:ECDHE-RSA-AES256-GCM-SHA384:DHE-RSA-AES256-GCM-SHA384:ECDHE-RSA-AES256-SHA384;
+    ssl_ecdh_curve secp384r1; # Requires nginx >= 1.1.0
+    ssl_session_timeout  10m;
+    ssl_session_cache shared:SSL:10m;
+    ssl_session_tickets off; # Requires nginx >= 1.5.9
+    ssl_stapling on; # Requires nginx >= 1.3.7
+    ssl_stapling_verify on; # Requires nginx => 1.3.7
+    resolver 8.8.8.8 8.8.4.4 valid=300s;
+    resolver_timeout 5s;
+    add_header X-Frame-Options DENY;
+    add_header X-Content-Type-Options nosniff;
+    add_header X-XSS-Protection "1; mode=block";
+
+    root /usr/share/nginx/html;
+
+    location / {
+    }
+
+    error_page 404 /404.html;
+    location = /404.html {
+    }
+
+    error_page 500 502 503 504 /50x.html;
+    location = /50x.html {
+    }
+
+    location /nexus {
+        proxy_pass http://127.0.0.1:9000/nexus;
+    }
+}
+EOF
+
+echo "Make sure that there are no syntax errors in our files."
+nginx -t
+
+systemctl restart nginx
