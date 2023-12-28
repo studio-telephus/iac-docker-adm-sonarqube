@@ -47,6 +47,8 @@ sudo -iu postgres psql -c "ALTER USER postgres PASSWORD '$POSTGRES_PASSWORD';"
 
 cat << EOF > /root/.pgpass
 localhost:5432:postgres:postgres:$POSTGRES_PASSWORD
+localhost:5432:sonardb:postgres:$POSTGRES_PASSWORD
+localhost:5432:sonardb:sonardb_user:$SONAR_USER_PASSWORD
 EOF
 
 chmod 600 /root/.pgpass
@@ -63,6 +65,7 @@ CREATE TABLESPACE sonardb_tablespace OWNER sonardb_owner LOCATION '/mnt/postgres
 CREATE DATABASE sonardb OWNER sonardb_owner ENCODING = 'UTF8' LC_COLLATE = 'en_US.UTF-8' LC_CTYPE = 'en_US.UTF-8' TABLESPACE sonardb_tablespace;
 CREATE USER sonardb_user WITH ENCRYPTED PASSWORD '$SONAR_USER_PASSWORD';
 GRANT CONNECT ON DATABASE sonardb TO sonardb_user;
+\c sonardb
 GRANT ALL ON SCHEMA public TO sonardb_user;
 EOF
 
@@ -93,7 +96,7 @@ cat << EOF > /opt/sonarqube/conf/sonar.properties
 sonar.jdbc.username=sonardb_user
 sonar.jdbc.password=$SONAR_USER_PASSWORD
 sonar.jdbc.url=jdbc:postgresql://localhost/sonardb
-
+sonar.web.context=/sonarqube
 sonar.path.data=/mnt/sonarqube/data
 sonar.path.temp=/mnt/sonarqube/temp
 sonar.path.logs=/mnt/sonarqube/logs
@@ -177,8 +180,6 @@ server {
     ssl_session_timeout  10m;
     ssl_session_cache shared:SSL:10m;
     ssl_session_tickets off; # Requires nginx >= 1.5.9
-    ssl_stapling on; # Requires nginx >= 1.3.7
-    ssl_stapling_verify on; # Requires nginx => 1.3.7
     resolver 8.8.8.8 8.8.4.4 valid=300s;
     resolver_timeout 5s;
     add_header X-Frame-Options DENY;
@@ -198,8 +199,8 @@ server {
     location = /50x.html {
     }
 
-    location /nexus {
-        proxy_pass http://127.0.0.1:9000/nexus;
+    location /sonarqube {
+        proxy_pass http://127.0.0.1:9000/sonarqube;
     }
 }
 EOF

@@ -6,6 +6,16 @@ Tail log
 
     tail -f /opt/sonarqube/logs/nohup.log
 
+PG
+
+    psql --host localhost --username sonardb_user --dbname sonardb
+
+Then
+
+    CREATE TABLE _delete_me (
+    	user_id serial PRIMARY KEY
+    );
+
 SSL permissions (anyone else other than root (user) and ssl-cert (group) can read and execute the ssl directory)
 
     chmod 716 /etc/ssl/private
