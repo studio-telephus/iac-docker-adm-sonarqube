@@ -16,19 +16,19 @@ jobs:
           SshPort: ${{ secrets.TEL_SSH_PORT }}
           SshUser: ${{ secrets.TEL_SSH_USER }}
           SshPrivateKey: ${{ secrets.GHA_SSH_PRIVATE_KEY }}
-          RemotePath: "~/components/containers/adm/sonarqube"
+          RemotePath: "~/build/containers/adm/sonarqube"
           BackendConfig: >
             {
-              "endpoint": "${{ vars.CI_S3_MINIO_ADM_ENDPOINT }}",
-              "access_key": "${{ secrets.CI_MINIO_ADM_SA_ACCESS_KEY }}",
-              "secret_key": "${{ secrets.CI_MINIO_ADM_SA_SECRET_KEY }}",
-              "bucket": "platform-state-adm",
-              "key": "lxd/sonarqube/tfstate.json",
+              "endpoint": "${{ vars.MINIO_ADM_S3_ENDPOINT }}",
+              "access_key": "${{ secrets.MINIO_ADM_SA_ACCESS_KEY }}",
+              "secret_key": "${{ secrets.MINIO_ADM_SA_SECRET_KEY }}",
+              "bucket": "bucket-platform-state-adm",
+              "key": "docker/sonarqube/tfstate.json",
               "region": "main",
               "skip_credentials_validation": true,
               "skip_metadata_api_check": true,
               "skip_region_validation": true,
               "force_path_style": true
             }
-          DryRun: true
+          DryRun: false
           Destroy: false

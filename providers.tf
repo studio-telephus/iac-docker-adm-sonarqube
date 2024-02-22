@@ -1,4 +1,4 @@
-provider "lxd" {
-  generate_client_certificates = true
-  accept_remote_certificate    = true
+provider "docker" {
+  alias = "docker-host"
+  host  = "unix:///var/run/docker.sock"
 }

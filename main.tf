@@ -1,28 +1,50 @@
-module "container_adm_sonarqube" {
-  source    = "github.com/studio-telephus/terraform-lxd-instance.git?ref=1.0.3"
-  name      = "container-adm-sonarqube"
-  image     = "images:debian/bookworm"
-  profiles  = ["limits", "fs-dir", "nw-adm"]
-  autostart = true
-  nic = {
-    name = "eth0"
-    properties = {
-      nictype        = "bridged"
-      parent         = "adm-network"
-      "ipv4.address" = "10.0.10.125"
+locals {
+  name              = "sonarqube"
+  docker_image_name = "tel-${var.env}-${local.name}"
+  container_name    = "container-${var.env}-${local.name}"
+  fqdn              = "sonarqube.docker.${var.env}.acme.corp"
+  sonarqube_address    = "https://${local.fqdn}/sonarqube"
+}
+
+resource "docker_image" "sonarqube" {
+  name         = local.docker_image_name
+  keep_locally = false
+  build {
+    context = path.module
+    build_args = {
+      _SERVER_KEY_PASSPHRASE = module.bw_sonarqube_pk_passphrase.data.password
     }
   }
-  mount_dirs = [
-    "${path.cwd}/filesystem-shared-ca-certificates",
-    "${path.cwd}/filesystem",
+  triggers = {
+    dir_sha1 = sha1(join("", [
+      filesha1("${path.module}/Dockerfile")
+    ]))
+  }
+}
+
+resource "docker_volume" "nexus_data" {
+  name = "volume-${var.env}-nexus-data"
+}
+
+resource "docker_container" "sonarqube" {
+  name  = local.container_name
+  image = docker_image.sonarqube.image_id
+  restart  = "unless-stopped"
+  hostname = local.container_name
+  shm_size = 1024
+
+  networks_advanced {
+    name         = "${var.env}-docker"
+    ipv4_address = "10.10.0.125"
+  }
+
+  env = [
+    "RANDOM_STRING=1d9f2318-1f2d-4864-90b3-463a37801fff"
   ]
-  exec_enabled = true
-  exec         = "/mnt/install.sh"
-  environment = {
-    RANDOM_STRING         = "1d9f2318-1f2d-4864-90b3-463a37801fff"
-    POSTGRES_PASSWORD     = var.sonar_postgres_password
-    SONAR_OWNER_PASSWORD  = var.sonar_owner_password
-    SONAR_USER_PASSWORD   = var.sonar_user_password
-    SERVER_KEY_PASSPHRASE = var.platformrsa_key_passphrase
+
+  volumes {
+    volume_name    = docker_volume.nexus_data.name
+    container_path = "/nexus-data"
+    read_only      = false
   }
 }
