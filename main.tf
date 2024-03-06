@@ -9,9 +9,6 @@ resource "docker_image" "sonarqube" {
   keep_locally = false
   build {
     context = path.module
-    build_args = {
-      _SERVER_KEY_PASSPHRASE = module.bw_sonarqube_pk_passphrase.data.password
-    }
   }
   triggers = {
     dir_sha1 = sha1(join("", [
