@@ -2,8 +2,6 @@ locals {
   name              = "sonarqube"
   docker_image_name = "tel-${var.env}-${local.name}"
   container_name    = "container-${var.env}-${local.name}"
-  fqdn              = "sonarqube.docker.${var.env}.acme.corp"
-  sonarqube_address = "https://${local.fqdn}/sonarqube"
 }
 
 resource "docker_image" "sonarqube" {
