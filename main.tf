@@ -3,7 +3,7 @@ locals {
   docker_image_name = "tel-${var.env}-${local.name}"
   container_name    = "container-${var.env}-${local.name}"
   fqdn              = "sonarqube.docker.${var.env}.acme.corp"
-  sonarqube_address    = "https://${local.fqdn}/sonarqube"
+  sonarqube_address = "https://${local.fqdn}/sonarqube"
 }
 
 resource "docker_image" "sonarqube" {
@@ -22,13 +22,13 @@ resource "docker_image" "sonarqube" {
   }
 }
 
-resource "docker_volume" "nexus_data" {
-  name = "volume-${var.env}-nexus-data"
+resource "docker_volume" "sonarqube_data" {
+  name = "volume-${var.env}-sonarqube-data"
 }
 
 resource "docker_container" "sonarqube" {
-  name  = local.container_name
-  image = docker_image.sonarqube.image_id
+  name     = local.container_name
+  image    = docker_image.sonarqube.image_id
   restart  = "unless-stopped"
   hostname = local.container_name
   shm_size = 1024
@@ -39,12 +39,21 @@ resource "docker_container" "sonarqube" {
   }
 
   env = [
-    "RANDOM_STRING=1d9f2318-1f2d-4864-90b3-463a37801fff"
+    "RANDOM_STRING=acb53b5e-6a57-4e81-a983-2cde076ce6d4"
   ]
 
   volumes {
-    volume_name    = docker_volume.nexus_data.name
-    container_path = "/nexus-data"
+    volume_name    = docker_volume.sonarqube_data.name
+    container_path = "/sonarqube-data"
     read_only      = false
+  }
+
+  volumes {
+    container_path = "/opt/sonarqube/data"
+    volume_name = "sonar-data"
+  }
+  volumes {
+    container_path = "/opt/sonarqube/extensions"
+    volume_name = "sonar-extensions"
   }
 }

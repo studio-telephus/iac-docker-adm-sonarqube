@@ -1,4 +1,4 @@
-FROM sonarqube:10.4.0-community
+FROM sonarqube:10.4.1-community
 
 COPY ./filesystem /.
 COPY ./filesystem-shared-ca-certificates /.
@@ -10,6 +10,6 @@ ARG _SERVER_KEY_PASSPHRASE
 #  -out /etc/gitlab/ssl/private/server.key \
 #  -passin "pass:${_SERVER_KEY_PASSPHRASE}"
 
-RUN bash /mnt/setup-ca.sh
+#RUN bash /mnt/setup-ca.sh
 
 EXPOSE 22 80 443 8081
