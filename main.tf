@@ -26,6 +26,14 @@ resource "docker_volume" "sonarqube_data" {
   name = "volume-${var.env}-sonarqube-data"
 }
 
+resource "docker_volume" "sonarqube_logs" {
+  name = "volume-${var.env}-sonarqube-logs"
+}
+
+resource "docker_volume" "sonarqube_extensions" {
+  name = "volume-${var.env}-sonarqube-extensions"
+}
+
 resource "docker_container" "sonarqube" {
   name     = local.container_name
   image    = docker_image.sonarqube.image_id
@@ -44,16 +52,16 @@ resource "docker_container" "sonarqube" {
 
   volumes {
     volume_name    = docker_volume.sonarqube_data.name
-    container_path = "/sonarqube-data"
-    read_only      = false
+    container_path = "/opt/sonarqube/data"
   }
 
   volumes {
-    container_path = "/opt/sonarqube/data"
-    volume_name = "sonar-data"
+    volume_name = docker_volume.sonarqube_logs.name
+    container_path = "/opt/sonarqube/logs"
   }
+
   volumes {
+    volume_name = docker_volume.sonarqube_extensions.name
     container_path = "/opt/sonarqube/extensions"
-    volume_name = "sonar-extensions"
   }
 }
