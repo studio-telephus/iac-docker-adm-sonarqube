@@ -45,6 +45,7 @@ resource "docker_container" "sonarqube" {
   }
 
   env = [
+    "SONAR_WEB_CONTEXT=/sonarqube",
     "RANDOM_STRING=acb53b5e-6a57-4e81-a983-2cde076ce6d4"
   ]
 
