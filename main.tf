@@ -55,12 +55,12 @@ resource "docker_container" "sonarqube" {
   }
 
   volumes {
-    volume_name = docker_volume.sonarqube_logs.name
+    volume_name    = docker_volume.sonarqube_logs.name
     container_path = "/opt/sonarqube/logs"
   }
 
   volumes {
-    volume_name = docker_volume.sonarqube_extensions.name
+    volume_name    = docker_volume.sonarqube_extensions.name
     container_path = "/opt/sonarqube/extensions"
   }
 }

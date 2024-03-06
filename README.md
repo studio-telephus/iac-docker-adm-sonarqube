@@ -1,4 +1,4 @@
-# iac-lxd-adm-sonarqube
+# iac-docker-adm-sonarqube
 
 ## Helpers
 
@@ -48,8 +48,8 @@ Test
 Add to Apache2 configuration
 
     <Location /sonarqube>
-        ProxyPass http://sonarqube.adm.acme.corp:9000/sonarqube
-        ProxyPassReverse http://sonarqube.adm.acme.corp:9000/sonarqube
+        ProxyPass https://sonarproxy.adm.acme.corp/sonarqube
+        ProxyPassReverse http://sonarproxy.adm.acme.corp/sonarqube
     </Location>
 
 Then
